@@ -1,0 +1,18 @@
+FROM node:14-alpine
+
+#web-pack-loader用のstatsファイルをコピーする
+ENV STATS_FILE=/home/app/frontend
+RUN mkdir -p $STATS_FILE
+COPY webpack-stats.json /home/app/frontend
+
+# カレントワーキングディレクトリとして 'app' フォルダを指定する
+WORKDIR /app
+
+# `package.json` と `package-lock.json` （あれば）を両方コピーする
+COPY package*.json ./
+
+# プロジェクトの依存ライブラリをインストールする
+RUN npm install
+
+# カレントワーキングディレクトリ(つまり 'app' フォルダ)にプロジェクトのファイルやフォルダをコピーする
+COPY . .

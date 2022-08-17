@@ -1,0 +1,42 @@
+@startuml Hello World
+
+left to right direction
+skinparam defaultTextAlignment center
+
+
+'汎用的なアイコンを読み込み
+!define ICONURL https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/v2.4.0
+!includeurl ICONURL/common.puml
+!includeurl ICONURL/devicons2/django.puml
+!includeurl ICONURL/devicons2/nginx_original.puml
+!includeurl ICONURL/devicons2/vuejs.puml
+!includeurl ICONURL/devicons2/redis.puml
+!includeurl ICONURL/devicons2/postgresql.puml
+!includeurl ICONURL/devicons2/docker.puml
+!includeurl ICONURL/font-awesome/laptop.puml
+
+'GCPアイコンを読み込み
+!define GCPPuml https://raw.githubusercontent.com/davidholsgrove/gcp-icons-for-plantuml/master/dist
+!includeurl GCPPuml/GCPCommon.puml
+!includeurl GCPPuml/Compute/ComputeEngine.puml
+
+FA_LAPTOP(browser,browser)
+
+ComputeEngine(GCE, "GCE", "main"){
+  DEV2_DOCKER(docker-compose,docker-compose) {
+    DEV2_DJANGO(backend,backend)
+    DEV2_NGINX_ORIGINAL(server,server)
+    DEV2_VUEJS(frontend,frontend)
+    DEV2_REDIS(redis,redis)
+    DEV2_POSTGRESQL(db,postgreSQL)
+  }
+}
+
+
+browser --> server
+server --> backend
+server --> frontend
+backend --> db
+backend --> redis
+
+@enduml
