@@ -2,16 +2,19 @@ from django.db import models
 from ..accounts.models import CustomUser
 
 
+class Size(models.Model):
+    size = models.CharField("サイズ", max_length=255, unique=True)
+
+    def __str__(self):
+        return self.size
+
+    class Meta:
+        verbose_name_plural = "Sizes"
+
+
 class Item(models.Model):
-    size_choises = (
-        ('XS', 'XS'),
-        ('S', 'S'),
-        ('M', 'M'),
-        ('L', 'L'),
-        ('XL', 'XL'),
-    )
-    size = models.CharField("サイズ", max_length=255, choices=size_choises)
-    image = models.ImageField("商品画像")
+    size = models.ManyToManyField(Size)
+    image = models.ImageField("商品画像", upload_to="item/",)
     name = models.CharField("商品名", max_length=255)
 
     def __str__(self):
@@ -43,10 +46,37 @@ class Vote(models.Model):
 
 class Order(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.PROTECT)
-    item = models.ForeignKey(Item, on_delete=models.PROTECT)
-    item_count = models.IntegerField("購入個数")
     vote = models.ForeignKey(Vote, on_delete=models.PROTECT)
     order_datetime = models.DateTimeField("購入時間", auto_now_add=True)
 
+    def __str__(self):
+        return self.user.first_name
+
     class Meta:
         verbose_name_plural = "Orders"
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
+    item = models.ForeignKey(Item, on_delete=models.PROTECT)
+    size = models.ForeignKey(Size, on_delete=models.PROTECT)
+    quantity = models.IntegerField('数量')
+
+    def __str__(self):
+        return '{}:{}'.format(self.order.user.email, self.order.vote.title)
+
+    class Meta:
+        verbose_name_plural = "OrderItems"
+
+
+class CartItem(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.PROTECT)
+    item = models.ForeignKey(Item, on_delete=models.PROTECT)
+    size = models.ForeignKey(Size, on_delete=models.PROTECT)
+    quantity = models.IntegerField('数量')
+
+    def __str__(self):
+        return self.user.email
+
+    class Meta:
+        verbose_name_plural = "CartItems"

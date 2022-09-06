@@ -15,11 +15,3 @@ DATABASES = {
         'PORT': os.environ.get("SQL_PORT"),
     }
 }
-
-# webpack_loader
-WEBPACK_LOADER = {
-    'DEFAULT': {
-        'BUNDLE_DIR_NAME': 'dist/',
-        'STATS_FILE': os.path.join('/home/app/frontend', 'webpack-stats.json')
-    }
-}

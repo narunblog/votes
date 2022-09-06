@@ -16,7 +16,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG") == "true"
+DEBUG = os.environ.get("DEBUG") == "True"
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
 
@@ -31,12 +31,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # 3rd party
-    'rest_framework',
-    'djoser',
-    'webpack_loader',
-
-    # config
-    'config',
+    'rest_framework',  # Django Rest Framework
+    'djoser',  # Django djoser JWT
+    'corsheaders',  # Django CORS Headers
+    'django_filters',  # django-filter
+    'django_celery_beat',  # django_celery_beat
+    'django_celery_results',  # django_celery_results
 
     # my-app
     'apps.accounts',
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # Django CORS Headers
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -112,9 +113,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
-STATICFILES_DIRS = [
-    os.path.join('/app/dist')
-]
 
 
 MEDIA_URL = "/media/"
@@ -189,3 +187,12 @@ DJOSER = {
         # 'current_user': 'accounts.serializers.UserSerializer',
     },
 }
+
+# Django CORS Headers
+CORS_ORIGIN_WHITELIST = os.environ.get("CORS_ORIGIN_WHITELIST").split(" ")
+
+
+# celery,redis
+CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://redis:6379/1')
+CELERY_TIMEZONE = 'Asia/Tokyo'
+CELERY_RESULT_BACKEND = 'django-db'

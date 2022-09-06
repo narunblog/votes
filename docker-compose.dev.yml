@@ -8,7 +8,6 @@ services:
     command: sh -c " python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000 "
     volumes:
       - ./backend:/home/app/web
-      - stats_file:/home/app/frontend
     ports:
       - 8000:8000
     env_file:
@@ -25,7 +24,6 @@ services:
     command: npm run serve
     volumes:
       - ./frontend:/app
-      - stats_file:/home/app/frontend
     ports:
       - 8080:8080
     env_file:
@@ -39,6 +37,51 @@ services:
     env_file:
       - ./db/.env.dev
 
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/data
+
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    command: celery -A config worker -l info
+    depends_on:
+      - backend
+      - redis
+      - db
+    restart: on-failure
+    env_file:
+      - ./backend/.env.dev
+
+  celery_beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    command: celery -A config beat --scheduler django_celery_beat.schedulers:DatabaseScheduler --pidfile /tmp/celerybeat.pid
+    depends_on:
+      - backend
+      - redis
+      - db
+    restart: on-failure
+    env_file:
+      - ./backend/.env.dev
+
+  flower:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    ports:
+      - '5555:5555'
+    command: "celery -A config flower --address=0.0.0.0"
+    depends_on:
+      - celery
+    env_file:
+      - ./backend/.env.dev
+
 volumes:
   postgres_data:
-  stats_file:
+  redis_data:

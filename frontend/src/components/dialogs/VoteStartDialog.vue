@@ -15,7 +15,7 @@
               <v-col
                 cols="12">
                 <v-text-field
-                  v-model="title"
+                  v-model="formData.title"
                   :counter="100"
                   label="タイトル"
                   required
@@ -35,7 +35,7 @@
                   min-width="auto">
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
-                      v-model="startDate"
+                      v-model="formData.startDate"
                       label="開始日"
                       prepend-icon="mdi-calendar"
                       readonly
@@ -44,12 +44,12 @@
                     </v-text-field>
                   </template>
                   <v-date-picker
-                    v-model="startDate"
+                    v-model="formData.startDate"
                     @input="menu1 = false"
                     locale="ja"
                     no-title
                     color="primary"
-                    :day-format="startDate => new Date(startDate).getDate()">
+                    :day-format="date => new Date(date).getDate()">
                   </v-date-picker>
                 </v-menu>
               </v-col>
@@ -58,7 +58,7 @@
                 sm="6"
                 md="6">
                 <v-select
-                  v-model="select"
+                  v-model="formData.startTime"
                   :items="timeSelector()"
                   :rules="[v => !!v || 'Item is required']"
                   label="時間"
@@ -78,8 +78,8 @@
                   min-width="auto">
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
-                      v-model="endDate"
-                      label="開始日"
+                      v-model="formData.endDate"
+                      label="終了日"
                       prepend-icon="mdi-calendar"
                       readonly
                       v-bind="attrs"
@@ -87,12 +87,12 @@
                     </v-text-field>
                   </template>
                   <v-date-picker
-                    v-model="endDate"
+                    v-model="formData.endDate"
                     @input="menu2 = false"
                     locale="ja"
                     no-title
                     color="primary"
-                    :day-format="endDate => new Date(endDate).getDate()">
+                    :day-format="date => new Date(date).getDate()">
                   </v-date-picker>
                 </v-menu>
               </v-col>
@@ -101,7 +101,7 @@
                 sm="6"
                 md="6">
                 <v-select
-                  v-model="select"
+                  v-model="formData.endTime"
                   :items="timeSelector()"
                   :rules="[v => !!v || 'Item is required']"
                   label="時間"
@@ -116,14 +116,14 @@
           <v-btn
             color="primary"
             text
-            @click="$emit('onClickClose')"
+            @click="$emit('onClickClose',formData)"
           >
             Close
           </v-btn>
           <v-btn
             color="primary"
             text
-            @click="$emit('onClickSave')"
+            @click="$emit('onClickSave',formData)"
           >
             Save
           </v-btn>
@@ -137,15 +137,16 @@
 <script>
   export default {
     name: 'VoteStartDialog',
-    data: () => ({
-      startDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
-      startTime: false,
-      endDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
-      endTime:false,
+  data: () => ({
+    formData: {
+        startDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+        startTime: false,
+        endDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+        endTime: false,
+        title: "",
+      },
       menu1: false,
       menu2: false,
-      select: false,
-      title: "",
     }),
     methods: {
       timeSelector(options) {

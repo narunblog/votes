@@ -1,10 +1,5 @@
 FROM node:14-alpine
 
-#web-pack-loader用のstatsファイルをコピーする
-ENV STATS_FILE=/home/app/frontend
-RUN mkdir -p $STATS_FILE
-COPY webpack-stats.json /home/app/frontend
-
 # カレントワーキングディレクトリとして 'app' フォルダを指定する
 WORKDIR /app
 

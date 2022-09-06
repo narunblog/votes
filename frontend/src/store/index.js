@@ -1,8 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import createPersistedState from "vuex-persistedstate";
-
-import { axiosApi } from "../mixins/axios-api";
+import { axiosBase } from "@/mixins/AxiosBase"
 
 Vue.use(Vuex);
 
@@ -31,7 +30,8 @@ export default new Vuex.Store({
   actions: {
     userLogin(context, usercredentials) {
       return new Promise((resolve) => {
-        axiosApi.post('/api/accounts/jwt/create/', {
+        const endpoint = '/api/accounts/jwt/create/'
+        axiosBase.post(endpoint, {
           email: usercredentials.email,
           password: usercredentials.password,
         })
@@ -48,5 +48,4 @@ export default new Vuex.Store({
     paths: ['accessToken', 'refreshToken', 'isAuthenticated'],
     storage: window.localStorage,
   })],
-  mixins: [axiosApi]
 });

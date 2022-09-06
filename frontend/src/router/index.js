@@ -17,10 +17,15 @@ import SignUpDone from '@/components/accounts/SignUpDone';
 import UserActivation from '@/components/accounts/UserActivation';
 
 //votes
-import VoteSelect from "@/components/votes/VoteSelect";
+import Vote from "@/components/votes/Vote";
+import NewVote from "@/components/votes/NewVote";
+import ReVote from "@/components/votes/ReVote";
 import VoteHistory from "@/components/votes/VoteHistory";
 import VoteResult from "@/components/votes/VoteResult";
 import VoteStart from "@/components/votes/VoteStart";
+
+//test
+import Test from "../test/TestSelectGrandParent";
 
 Vue.use(VueRouter);
 
@@ -31,9 +36,19 @@ const routes = [
     component: IndexView,
     children: [
       {
-        path: "vote-select",
-        name: "voteSelect",
-        component: VoteSelect,
+        path: "vote",
+        name: "vote",
+        component: Vote,
+      },
+      {
+        path: "vote/new-vote",
+        name: "newVote",
+        component: NewVote,
+      },
+      {
+        path: "vote/re-vote",
+        name: "reVote",
+        component: ReVote,
       },
       {
         path: "vote-history",
@@ -102,10 +117,15 @@ const routes = [
     name: "userActivation",
     component: UserActivation,
   },
+  {
+    path: "/test",
+    name: "test",
+    component: Test,
+  },
 ];
 
 const router = new VueRouter({
-  mode: 'history',
+  mode: process.env.VUE_APP_MODE,
   routes,
 });
 
