@@ -155,7 +155,7 @@ SIMPLE_JWT = {
 
 }
 
-
+DOMAIN = 'http://0.0.0.0:8080/#/'
 # djoser
 DJOSER = {
     # メールアドレスでログイン
@@ -178,13 +178,13 @@ DJOSER = {
     'ACTIVATION_URL': 'activate/{uid}/{token}',
     # メールアドレスリセット完了用URL
     'USERNAME_RESET_CONFIRM_URL': 'email/reset/confirm/{uid}/{token}',
+    # メールアドレスリセット時のメールアドレスバリデーション
+    'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND': True,
     # パスワードリセット完了用URL
     'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
     # カスタムユーザー用シリアライザー
     'SERIALIZERS': {
-        # 'user_create': 'accounts.serializers.UserSerializer',
-        # 'user': 'accounts.serializers.UserSerializer',
-        # 'current_user': 'accounts.serializers.UserSerializer',
+        'user_create_password_retype': 'apps.accounts.serializers.MyUserCreatePasswordRetypeSerializer',
     },
 }
 

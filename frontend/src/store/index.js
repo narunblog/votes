@@ -3,6 +3,7 @@ import Vuex from "vuex";
 import createPersistedState from "vuex-persistedstate";
 import { axiosBase } from "@/mixins/AxiosBase"
 
+
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -29,7 +30,7 @@ export default new Vuex.Store({
   },
   actions: {
     userLogin(context, usercredentials) {
-      return new Promise((resolve) => {
+      return new Promise((resolve, reject) => {
         const endpoint = '/api/accounts/jwt/create/'
         axiosBase.post(endpoint, {
           email: usercredentials.email,
@@ -37,7 +38,10 @@ export default new Vuex.Store({
         })
           .then(response => {
             context.commit('updateLoginToken', { access: response.data.access, refresh: response.data.refresh })
-            resolve()
+            resolve(response)
+          })
+          .catch(error => {
+            reject(error)
           })
       })
     },

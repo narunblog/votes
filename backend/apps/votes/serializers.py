@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import Vote, Item, CartItem, Order, OrderItem
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -104,3 +105,54 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email']
+
+
+class OrderRetrieveUpdateListSerializer(serializers.ListSerializer):
+    def create(self, validated_data):
+        order_items = [OrderItem(**order_item,) for order_item in validated_data]
+        return OrderItem.objects.bulk_create(order_items)
+
+    def validate(self, attrs):
+        # 1つのオーダーに対するアイテムの合計数が2つを超える場合は無効とする
+        sum = 0
+        for attr in attrs:
+            sum += attr['quantity']
+        if 2 < sum:
+            raise serializers.ValidationError(
+                "注文するアイテムの合計数が2を超えました。"
+            )
+        return attrs
+
+
+class OrderRetrieveUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = ['item', 'size', 'quantity']
+        list_serializer_class = OrderRetrieveUpdateListSerializer
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['user', 'vote']
+
+    def validate_vote(self, value):
+        last_vote = Vote.objects.last()
+        # 指定された投票が最新のものではない場合、注文を無効にする
+        if (last_vote.id != value.id):
+            raise serializers.ValidationError(
+                "指定した投票は最新のものではないため注文することができません。"
+            )
+
+        # 投票が開始されていない場合、注文を無効とする
+        if (last_vote.status == 0):
+            raise serializers.ValidationError(
+                "指定した投票はまだ開始されていないため、注文することができません。"
+            )
+
+        # 投票期限が終了している場合、注文を無効とする
+        if (last_vote.status == 2):
+            raise serializers.ValidationError(
+                "指定した投票は期限が終了しているため、注文することができません。"
+            )
+        return value

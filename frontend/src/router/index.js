@@ -1,5 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
+import store from "@/store/index";
 
 //index
 import IndexView from "@/components/IndexView.vue"
@@ -11,6 +12,7 @@ import PasswordChange from "@/components/accounts/PasswordChange";
 import PasswordChangeDone from "@/components/accounts/PasswordChangeDone";
 import PasswordReset from "@/components/accounts/PasswordReset";
 import PasswordResetConfirm from "@/components/accounts/PasswordResetConfirm";
+import PasswordResetConfirmDone from "@/components/accounts/PasswordResetConfirmDone";
 import PasswordResetDone from "@/components/accounts/PasswordResetDone";
 import SignUp from '@/components/accounts/SignUp';
 import SignUpDone from '@/components/accounts/SignUpDone';
@@ -34,36 +36,43 @@ const routes = [
     path: "/",
     name: "indexView",
     component: IndexView,
+    meta: { requiresAuth: true },
     children: [
       {
         path: "vote",
         name: "vote",
         component: Vote,
+        //meta: { requiresAuth: true },
       },
       {
         path: "vote/new-vote",
         name: "newVote",
         component: NewVote,
+        //meta: { requiresAuth: true },
       },
       {
         path: "vote/re-vote",
         name: "reVote",
         component: ReVote,
+        //meta: { requiresAuth: true },
       },
       {
         path: "vote-history",
         name: "voteHistory",
         component: VoteHistory,
+        meta: { requiresAuth: true },
       },
       {
         path: "vote-result",
         name: "voteResult",
         component: VoteResult,
+        meta: { requiresAuth: true },
       },
       {
         path: "vote-start",
         name: "voteStart",
         component: VoteStart,
+        meta: { requiresAuth: true },
       },
     ],
   },
@@ -98,6 +107,11 @@ const routes = [
     component: PasswordResetConfirm,
   },
   {
+    path: "/password/reset/confirm/done",
+    name: "passwordResetConfirmDone",
+    component: PasswordResetConfirmDone,
+  },
+  {
     path: "/password/reset/done",
     name: "passwordResetDone",
     component: PasswordResetDone,
@@ -128,5 +142,23 @@ const router = new VueRouter({
   mode: process.env.VUE_APP_MODE,
   routes,
 });
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    // このルートはログインされているかどうか認証が必要です。
+    // もしされていないならば、ログインページにリダイレクトします。
+    if (!store.state.isAuthenticated) {
+      next({
+        path: '/login',
+        query: { redirect: to.fullPath }
+      })
+    } else {
+      next()
+    }
+  } else {
+    next() // next() を常に呼び出すようにしてください!
+  }
+});
+
 
 export default router;

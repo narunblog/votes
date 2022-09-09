@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import VoteSerializer, ItemSerializer, CartItemUpdateOrCreateSerializer, CartItemListSerializer, OrderHistoryOrderSerializer, OrderItemsSerializer, OrderItemCountSerializer, UserSerializer
+from .serializers import VoteSerializer, ItemSerializer, CartItemUpdateOrCreateSerializer, CartItemListSerializer, OrderHistoryOrderSerializer, OrderItemsSerializer, OrderItemCountSerializer, UserSerializer, OrderRetrieveUpdateSerializer, OrderSerializer
 from .models import Item, CartItem, Size, Order, OrderItem, Vote
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
@@ -110,21 +110,33 @@ class CartItemListAPIView(ListAPIView):
         return CartItem.objects.filter(user=self.request.user)
 
 
-class CartCheckOutAPIView(APIView):
+class OrderRetrieveUpdateAPIView(APIView):
+    # 新規注文を登録する時
     def get(self, request, *args, **kwargs):
         user = request.user
         vote = request.query_params['vote']
         cart_items = CartItem.objects.filter(user=user)
-        order = Order.objects.create(user=user, vote=Vote.objects.get(pk=vote))
+        cart_items_dict = cart_items.values('item', 'size', 'quantity')
+        cart_items_list = list(cart_items_dict)
+        order_items_serializer = OrderRetrieveUpdateSerializer(data=cart_items_list, many=True)
+        order_items_serializer.is_valid(raise_exception=True)
 
-        for cart_item in cart_items:
-            order_item = OrderItem.objects.create(
-                order=order, item=cart_item.item, size=cart_item.size, quantity=cart_item.quantity)
-            cart_item.delete()
-            print('オーダーアイテムを作成しました{}'.format(order_item))
+        order_serializer = OrderSerializer(data={'user': user.id, 'vote': vote})
+        order_serializer.is_valid(raise_exception=True)
+        order = order_serializer.save()
 
-        return Response({'success'}, status.HTTP_201_CREATED)
+        # オーダーアイテムに足りない項目を追加
+        for data in order_items_serializer.validated_data:
+            data['order'] = order
 
+        order_items_serializer.save()
+
+        # オーダーアイテムとして登録が完了したので、カート内のアイテムを削除する
+        cart_items.delete()
+
+        return Response({'order': order_serializer.data, 'order_item': order_items_serializer.data}, status.HTTP_201_CREATED)
+
+    # 注文内容を変更するとき
     def put(self, request, *args, **kwargs):
         user = request.user
         vote = request.data['vote']

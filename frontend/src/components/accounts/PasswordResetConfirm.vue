@@ -18,8 +18,11 @@
                 outlined
                 dense
                 label="パスワード"
+                :type="show1 ? 'text' : 'password'"
                 v-model.trim="inputPassword"
                 :error-messages="errorMessagesPassword"
+                :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                @click:append="show1 = !show1"
               ></v-text-field>
             </v-col>
             <v-col
@@ -28,8 +31,11 @@
                 outlined
                 dense
                 label="パスワード（確認）"
+                :type="show2 ? 'text' : 'password'"
                 v-model="inputRePassword"
                 :error-messages="errorMessagesRePassword"
+                :append-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'"
+                @click:append="show2 = !show2"
               ></v-text-field>
             </v-col>
             <v-col
@@ -44,8 +50,8 @@
 </template>
 
 <script>
-import { required, minLength } from 'vuelidate/lib/validators'
-import axios from "axios";
+import { required, minLength,sameAs } from 'vuelidate/lib/validators'
+import { axiosBase } from '@/mixins/AxiosBase';
 
 
 export default {
@@ -55,7 +61,9 @@ export default {
       inputRePassword: null,
       valid: true,
       errorMessagesPassword: [],
-      errorMessagesRePassword:[],
+      errorMessagesRePassword: [],
+      show1: false,
+      show2:false,
     };
   },
   validations: {
@@ -65,23 +73,23 @@ export default {
     },
     inputRePassword: {
       required,
-      minLength: minLength(8)
+      minLength: minLength(8),
+      sameAsPassword:sameAs(function() {
+            return this.inputPassword
+          }) ,
     }
   },
   methods: {
     submit() {
       this.$v.$touch()
-      if (this.$v.$invalid) {
-        this.validatePassword()
-        this.validateRePassword()
-        console.log('error!')
-      } else {
+      this.validatePassword()
+      this.validateRePassword()
+      if (!this.$v.$invalid) {
         this.changePassword()
-        console.log('submit!')
       }
     },
     validatePassword() {
-      this.errorMessagesPassword = []
+      this.errorMessagesPassword.splice(0)
       if (!this.$v.inputPassword.required) {
         this.errorMessagesPassword.push('パスワードは必須です。')
       }
@@ -90,31 +98,27 @@ export default {
       }
     },
     validateRePassword() {
-      this.errorMessagesRePassword = []
+      this.errorMessagesRePassword.splice(0)
       if (!this.$v.inputRePassword.required) {
         this.errorMessagesRePassword.push('パスワード（確認）は必須です。')
       }
       if (!this.$v.inputRePassword.minLength) {
         this.errorMessagesRePassword.push('8文字以上入力してください。')
       }
+      if (!this.$v.inputRePassword.sameAsPassword) {
+        this.errorMessagesRePassword.push('パスワードとパスワード（確認）が一致しません。')
+      }
     },
     changePassword() {
-      const axiosBase = axios.create({
-        baseURL: "http://127.0.0.1:8000",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        responseType: "json",
-        timeout: 1000,
-      });
-      axiosBase.post("/api/accounts/users/reset_password_confirm/", {
+      const endpoint = '/api/accounts/users/reset_password_confirm/'
+      axiosBase.post(endpoint, {
         uid: this.$route.params.uid,
         token: this.$route.params.token,
         new_password: this.inputPassword,
         re_new_password: this.inputRePassword,
       }).then(response => {
         console.log(response)
-        this.$router.push({ name: "passwordResetDone" });
+        this.$router.push({ name: "passwordResetConfirmDone" });
         })
         .catch(response => {
           console.log(response)

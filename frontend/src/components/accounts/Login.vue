@@ -28,8 +28,11 @@
                 outlined
                 dense
                 label="パスワード"
+                :type="show ? 'text' : 'password'"
                 v-model="inputPassword"
                 :error-messages="errorMessagesPassword"
+                :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
+                @click:append="show = !show"
               ></v-text-field>
             </v-col>
             <v-col
@@ -64,7 +67,8 @@ export default {
       valid: true,
       submitStatus: null,
       errorMessagesEmail: [],
-      errorMessagesPassword:[],
+      errorMessagesPassword: [],
+      show:false,
     };
   },
   validations: {
@@ -79,17 +83,14 @@ export default {
   methods: {
     submit() {
       this.$v.$touch()
-      if (this.$v.$invalid) {
-        this.validateEmail()
-        this.validatePassword()
-        console.log('error!')
-      } else {
-        this.login()
-        console.log('submit!')
+      this.validateEmail()
+      this.validatePassword()
+      if (!this.$v.$invalid) {
+        this.login() 
       }
     },
     validateEmail() {
-      this.errorMessagesEmail = []
+      this.errorMessagesEmail.splice(0)
       if (!this.$v.inputEmail.required) {
         this.errorMessagesEmail.push('メールアドレスは必須です。')
       }
@@ -99,7 +100,7 @@ export default {
       }
     },
     validatePassword() {
-      this.errorMessagesPassword = []
+      this.errorMessagesPassword.splice(0)
       if (!this.$v.inputPassword.required) {
         this.errorMessagesPassword.push('パスワードは必須です。')
       }
@@ -112,11 +113,20 @@ export default {
         .dispatch("userLogin", {
           email: this.inputEmail,
           password: this.inputPassword,
+        }).then(response => {
+          if (this.$route.query.redirect) {
+            this.$router.push(this.$route.query.redirect);
+          }
+          else {
+            this.$router.push({ name: "vote" });
+          }
+        }).catch(error => {
+          this.errorMessagesEmail.splice(0)
+          this.errorMessagesEmail.push('メールアドレスまたはパスワードが間違っています。')
+          this.errorMessagesPassword.splice(0)
+          this.errorMessagesPassword.push('メールアドレスまたはパスワードが間違っています。')
         })
-        .then(() => {
-          this.$router.push({ name: "indexView" });
-        });
-    },
+    }
   },
 };
 </script>

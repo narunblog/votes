@@ -61,7 +61,15 @@
                 dense
                 label="パスワード"
                 v-model="inputPassword"
+                :type="show1 ? 'text' : 'password'"
+                :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
                 :error-messages="errorMessagesPassword">
+                <template v-slot:append>
+                  <button @click="show1 = !show1" tabindex="-1">
+                    <v-icon v-if="show1" >mdi-eye</v-icon>
+                    <v-icon v-else >mdi-eye-off</v-icon>
+                  </button>
+                </template>
               </v-text-field>
             </v-col>
             <v-col
@@ -71,7 +79,16 @@
                 dense
                 label="パスワード（確認）"
                 v-model="inputRePassword"
+                :type="show2 ? 'text' : 'password'"
+                :append-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'"
+                @click:append="show2 = !show2"
                 :error-messages="errorMessagesRePassword">
+                <template v-slot:append>
+                  <button @click="show2 = !show2" tabindex="-1">
+                    <v-icon v-if="show2" >mdi-eye</v-icon>
+                    <v-icon v-else >mdi-eye-off</v-icon>
+                  </button>
+                </template>
               </v-text-field>
             </v-col>
             <v-col
@@ -92,7 +109,7 @@
 
 <script>
 import { required, minLength } from 'vuelidate/lib/validators'
-import axios from "axios";
+import { axiosBase } from '@/mixins/AxiosBase';
 
 
 export default {
@@ -110,7 +127,9 @@ export default {
       errorMessagesUserNumber: [],
       errorMessagesEmail: [],
       errorMessagesPassword: [],
-      errorMessagesRePassword:[],
+      errorMessagesRePassword: [],
+      show1: false,
+      show2:false,
     };
   },
   validations: {
@@ -138,37 +157,36 @@ export default {
   methods: {
     submit() {
       this.$v.$touch()
-      if (this.$v.$invalid) {
-        this.validateFirstName()
-        this.validateLastName()
-        this.validateUserNumber()
-        this.validateEmail()
-        this.validatePassword()
-        this.validateRePassword()
-      } else {
-        this.signup()
+      this.validateFirstName()
+      this.validateLastName()
+      this.validateUserNumber()
+      this.validateEmail()
+      this.validatePassword()
+      this.validateRePassword()
+      if (!this.$v.$invalid) {
+        this.signup() 
       }
     },
     validateFirstName() {
-      this.errorMessagesFirstName = []
+      this.errorMessagesFirstName.splice(0)
       if (!this.$v.inputFirstName.required) {
         this.errorMessagesFirstName.push('性は必須です。')
       }
     },
     validateLastName() {
-      this.errorMessagesLastName = []
+      this.errorMessagesLastName.splice(0)
       if (!this.$v.inputLastName.required) {
         this.errorMessagesLastName.push('名は必須です。')
       }
     },
     validateUserNumber() {
-      this.errorMessagesUserNumber = []
+      this.errorMessagesUserNumber.splice(0)
       if (!this.$v.inputUserNumber.required) {
         this.errorMessagesUserNumber.push('社員番号は必須です。')
       }
     },
     validateEmail() {
-      this.errorMessagesEmail = []
+      this.errorMessagesEmail.splice(0)
       if (!this.$v.inputEmail.required) {
         this.errorMessagesEmail.push('メールアドレスは必須です。')
       }
@@ -178,7 +196,7 @@ export default {
       }
     },
     validatePassword() {
-      this.errorMessagesPassword = []
+      this.errorMessagesPassword.splice(0)
       if (!this.$v.inputPassword.required) {
         this.errorMessagesPassword.push('パスワードは必須です。')
       }
@@ -187,7 +205,7 @@ export default {
       }
     },
     validateRePassword() {
-      this.errorMessagesRePassword = []
+      this.errorMessagesRePassword.splice(0)
       if (!this.$v.inputRePassword.required) {
         this.errorMessagesRePassword.push('パスワード（確認）は必須です。')
       }
@@ -197,14 +215,6 @@ export default {
       }
     },
     signup() {
-      const axiosBase = axios.create({
-        baseURL: "http://127.0.0.1:8000",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        responseType: "json",
-        timeout: 1000,
-      });
       axiosBase.post("/api/accounts/users/", {
         first_name: this.inputFirstName,
         last_name: this.inputLastName,
@@ -213,11 +223,35 @@ export default {
         password: this.inputPassword,
         re_password:this.inputRePassword,
       }).then(response => {
-        console.log(response)
         this.$router.push({ name: "signUpDone" });
         })
-        .catch(response => {
-          console.log(response)
+        .catch(error => {
+          console.log(error.response)
+          const data = error.response.data
+          if (data.email) {
+            this.errorMessagesEmail.splice(0)
+            this.errorMessagesEmail.push(...data.email)
+          }
+          if (data.first_name) {
+            this.errorMessagesFirstName.splice(0)
+            this.errorMessagesFirstName.push(data.first_name)
+          }
+          if (data.last_name) {
+            this.errorMessagesLastName.splice(0)
+            this.errorMessagesLastName.push(data.last_name)
+          }
+          if (data.user_number) {
+            this.errorMessagesUserNumber.splice(0)
+            this.errorMessagesUserNumber.push(data.user_number)
+          }
+          if (data.password) {
+            this.errorMessagesPassword.splice(0)
+            this.errorMessagesPassword.push(data.password)
+          }
+          if (data.re_password) {
+            this.errorMessagesRePassword.splice(0)
+            this.errorMessagesRePassword.push(data.re_password)
+          }
         })
     },
   },

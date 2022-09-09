@@ -10,7 +10,7 @@
                 {{ order.vote.title }}<v-chip class="ma-2" :color="btnColor(order.vote.status)" text-color="white">{{ statusToString(order.vote.status) }}</v-chip>
               </v-col>
               <v-col class="d-flex align-center">
-                <v-btn :disabled="order.vote.status != 1" color="primary" right absolute @click.stop="dialogOpen(order.order_items)">注文内容変更</v-btn>
+                <v-btn :disabled="order.vote.status != 1" color="primary" right absolute to="vote/re-vote">注文内容変更</v-btn>
               </v-col>
             </v-row>
           </v-card-title>
@@ -27,14 +27,12 @@
         </v-card>
       </v-col>
     </v-row>
-    <OrderDialog ref="orderDialog" :dialog="dialog" :items="editOrderItems" @onClickClose="dialog=false"></OrderDialog>
   </div>
 </template>
 
 
 <script>
 import ItemCardForOrderHistory from '../cards/ItemCardForOrderHistory.vue'
-import OrderDialog from '../dialogs/OrderDialog.vue'
 import { axiosAPI } from '../../mixins/AxiosAPI'
 
 
@@ -42,7 +40,6 @@ export default {
   name: 'VoteHistory',
   components: {
     ItemCardForOrderHistory,
-    OrderDialog,
 },
   data: () => ({
     loading : true,

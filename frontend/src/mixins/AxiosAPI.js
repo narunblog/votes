@@ -1,9 +1,16 @@
-import { axiosBase } from "./AxiosBase";
 import store from "@/store"
 import router from "@/router";
+import axios from "axios";
 
 
-const axiosAPI = axiosBase
+const axiosAPI = axios.create({
+  baseURL: process.env.VUE_APP_API_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  responseType: "json",
+  timeout: 1000,
+});
 // Add a request interceptor
 axiosAPI.interceptors.request.use(function (config) {
   // Do something before request is sent
@@ -18,7 +25,7 @@ axiosAPI.interceptors.request.use(function (config) {
   return Promise.reject(error);
 });
 
-const isRetry = false
+let isRetry = false
 axiosAPI.interceptors.response.use((response) => {
   return response
 }, (error) => {
@@ -33,7 +40,7 @@ axiosAPI.interceptors.response.use((response) => {
         } // ヘッダーに新しいトークンを追加
         store.dispatch('refresh', response.data.access) // トークンを更新
         console.log('retry request')
-        return axiosApi.request(error.config);
+        return axiosAPI.request(error.config);
       }
     })
   } else {

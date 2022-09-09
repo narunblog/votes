@@ -35,7 +35,7 @@
 
 <script>
 import { required } from 'vuelidate/lib/validators'
-import axios from "axios";
+import { axiosBase } from '@/mixins/AxiosBase';
 
 
 export default {
@@ -54,16 +54,13 @@ export default {
   methods: {
     submit() {
       this.$v.$touch()
-      if (this.$v.$invalid) {
-        this.validateEmail()
-        console.log('error!')
-      } else {
+      this.validateEmail()
+      if (!this.$v.$invalid) {
         this.resetPassword()
-        console.log('submit!')
       }
     },
     validateEmail() {
-      this.errorMessagesEmail = []
+      this.errorMessagesEmail.splice(0)
       if (!this.$v.inputEmail.required) {
         this.errorMessagesEmail.push('メールアドレスは必須です。')
       }
@@ -73,21 +70,14 @@ export default {
       }
     },
     resetPassword() {
-      const axiosBase = axios.create({
-        baseURL: "http://127.0.0.1:8000",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        responseType: "json",
-        timeout: 1000,
-      });
-      axiosBase.post("/api/accounts/users/reset_password/", {
+      const endpoint = "/api/accounts/users/reset_password/"
+      axiosBase.post(endpoint, {
         email: this.inputEmail
       }).then(response => {
-        console.log(response)
-        console.log('success')
-      }).catch(response => {
-          console.log(response)
+        this.$router.push({ name: "passwordResetDone" });
+      }).catch(error => {
+        this.errorMessagesEmail.splice(0)
+        this.errorMessagesEmail.push('このメールアドレスは登録されていません。')
       })
     },
   },
