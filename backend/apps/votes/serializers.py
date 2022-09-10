@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import Vote, Item, CartItem, Order, OrderItem
-from django.utils import timezone
+from django.db.models import Q
+
 
 User = get_user_model()
 
@@ -10,6 +11,16 @@ class VoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vote
         fields = ['id', 'title', 'start_datetime', 'end_datetime']
+
+    def validate(self, attr):
+        # 予約中の投票や開催中の投票がある場合には、新規作成できないようにする
+        vote = Vote.objects.filter(Q(status=0) | Q(status=1))
+        if vote:
+            raise serializers.ValidationError(
+                "予約中の投票や開催中の投票があるため新規作成できません。"
+            )
+
+        return attr
 
 
 class ItemSerializer(serializers.ModelSerializer):

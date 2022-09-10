@@ -182,6 +182,16 @@
         }
         return items
       },
+      formDataInit() {
+        const initData = {
+          startDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+          startTime: false,
+          endDate: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+          endTime: false,
+          title: "",
+        }
+        this.formData = Object.assign({},initData)
+      },
     },
       props: {
         dialog: false,

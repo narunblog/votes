@@ -1,5 +1,16 @@
 <template>
   <div>
+    <v-alert
+      v-for="(alertMessage,index) in alertMessages"
+      :key="index"
+      outlined
+      type="error"
+      prominent
+      dense
+      dismissible
+      v-model="alert">
+    {{ alertMessage }}
+    </v-alert>
     <v-card>
       <v-card-title>
         <v-col cols="12">
@@ -113,8 +124,11 @@ export default {
       search: '',
       /** 選択年月 */
       yearMonth: `${year}-${month}`,
+
       dialog: false,
       cartItems: [],
+      alert: false,
+      alertMessages: [],
     }
   },
   methods: {
@@ -126,10 +140,18 @@ export default {
         }
         axiosAPI.get(endpoint, { params: params })
           .then(response => {
-            console.log(response)
             this.getItem()
           })
-        this.dialog = false
+          .catch(error => {
+            this.alertMessages.splice(0)
+            for (let [key, value] of Object.entries(error.response.data)) {
+              this.alertMessages.push(...value)
+            }
+            this.alert = true
+          })
+          .finally(() => {
+            this.dialog = false
+          })
       } else {
         let endpoint = '/api/votes/item/cart/checkout/'
         const modify = {
@@ -173,16 +195,35 @@ export default {
     },
     addCart(item) {
       if (this.isNewVote == true) {
-        let endpoint = 'api/votes/item/cart/'
-        let data = {
-          item: item.id,
-          size: item.size.value,
-          quantity: item.quantity.value,
+        this.alertMessages.splice(0)
+        if (item.size.value == "--") {
+          this.alertMessages.push("サイズを選択してください")
         }
-        axiosAPI.post(endpoint, data).then(response => {
-          console.log(response)
-          this.getItem()
-        })
+        if (item.quantity.value == "--") {
+          this.alertMessages.push("数量を選択してください")
+        }
+        if (this.alertMessages.length) {
+          this.alert = true
+          return 
+        }
+          let endpoint = 'api/votes/item/cart/'
+          let data = {
+            item: item.id,
+            size: item.size.value,
+            quantity: item.quantity.value,
+          }
+          axiosAPI.post(endpoint, data)
+            .then(response => {
+              console.log(response)
+              this.getItem()
+            })
+            .catch(error => {
+              this.alertMessages.splice(0)
+              for (let [key, value] of Object.entries(error.response.data)) {
+                this.alertMessages.push(...value)
+              }
+              this.alert = true
+            })
       } else {
         console.log(this.cartItems)
         this.cartItems.push({item:{image:item.image,name:item.name,id:item.id},quantity:item.quantity.value,size:item.size.value})

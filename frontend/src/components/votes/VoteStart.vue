@@ -1,5 +1,16 @@
 <template>
   <div>
+    <v-alert
+      v-for="(alertMessage,index) in alertMessages"
+      :key="index"
+      outlined
+      type="error"
+      prominent
+      dense
+      dismissible
+      v-model="alert">
+    {{ alertMessage }}
+    </v-alert>
     <div v-if="vote.status==0">
       <v-sheet
         color="grey lighten-4">
@@ -77,7 +88,9 @@ export default {
   data() {
     return {
       dialog: false,
-      vote:{},
+      vote: {},
+      alert: false,
+      alertMessages:[],
     }
   },
   computed:{
@@ -108,13 +121,22 @@ export default {
       }
       axiosAPI.post(endpoint, postData)
         .then(response => {
-          console.log(response)
-          console.log('success')
+          this.getCurrentVote()
+          this.$refs.voteStartDialog.formDataInit()
         })
-        .catch(response => {
-          console.log(response)
-          console.log('error')
+        .catch(error => {
+          this.alertMessages.splice(0)
+            for (let [key, value] of Object.entries(error.response.data)) {
+              this.alertMessages.push(...value)
+            }
+          this.alertMessages.push("3秒後に画面を更新します。")
+          this.alert = true
+          //画面更新処理
+          setTimeout(this.reloadPage, 3*1000);
         })
+    },
+    reloadPage() {
+      this.$router.go({path: this.$router.currentRoute.path, force: true})
     },
     getCurrentVote() {
       const endpoint = "/api/votes/vote/current/"
