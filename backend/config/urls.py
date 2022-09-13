@@ -9,6 +9,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/accounts/', include('apps.accounts.urls')),
     path('api/votes/', include('apps.votes.urls')),
+    path('api/login/', include('rest_framework.urls')),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

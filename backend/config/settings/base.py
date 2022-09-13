@@ -138,6 +138,8 @@ DEFAULT_FROM_EMAIL = 'xxx@gmail.com'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ),
     # 認証が必要
     'DEFAULT_PERMISSION_CLASSES': [

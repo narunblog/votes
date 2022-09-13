@@ -115,7 +115,7 @@ class OrderItemCountSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email']
+        fields = ['id', 'email', 'is_staff']
 
 
 class OrderRetrieveUpdateListSerializer(serializers.ListSerializer):

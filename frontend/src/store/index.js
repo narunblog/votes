@@ -2,6 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import createPersistedState from "vuex-persistedstate";
 import { axiosBase } from "@/mixins/AxiosBase"
+import { axiosAPI } from "@/mixins/AxiosAPI";
 
 
 Vue.use(Vuex);
@@ -11,6 +12,7 @@ export default new Vuex.Store({
     isAuthenticated: false,
     accessToken: null,
     refreshToken: null,
+    isStaff: null,
   },
   getters: {},
   mutations: {
@@ -27,6 +29,9 @@ export default new Vuex.Store({
       state.refreshToken = null
       state.isAuthenticated = false
     },
+    updateIsStaff(state, { isStaff }) {
+      state.isStaff = isStaff
+    },
   },
   actions: {
     userLogin(context, usercredentials) {
@@ -38,6 +43,20 @@ export default new Vuex.Store({
         })
           .then(response => {
             context.commit('updateLoginToken', { access: response.data.access, refresh: response.data.refresh })
+            context.dispatch('isStaff')
+            resolve(response)
+          })
+          .catch(error => {
+            reject(error)
+          })
+      })
+    },
+    isStaff(context) {
+      return new Promise((resolve, reject) => {
+        const endpoint = '/api/votes/user/my/'
+        axiosAPI.get(endpoint)
+          .then(response => {
+            context.commit('updateIsStaff', { isStaff: response.data.is_staff })
             resolve(response)
           })
           .catch(error => {
@@ -49,7 +68,7 @@ export default new Vuex.Store({
   modules: {},
   plugins: [createPersistedState({
     key: 'Votes',
-    paths: ['accessToken', 'refreshToken', 'isAuthenticated'],
+    paths: ['accessToken', 'refreshToken', 'isAuthenticated', 'isStaff'],
     storage: window.localStorage,
   })],
 });

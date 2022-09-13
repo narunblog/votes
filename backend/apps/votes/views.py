@@ -1,7 +1,7 @@
 from django.forms.models import model_to_dict
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, GenericAPIView
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import VoteSerializer, ItemSerializer, CartItemUpdateOrCreateSerializer, CartItemListSerializer, OrderHistoryOrderSerializer, OrderItemsSerializer, OrderItemCountSerializer, UserSerializer, OrderRetrieveUpdateSerializer, OrderSerializer
@@ -21,7 +21,7 @@ User = get_user_model()
 
 class VoteCreateAPIView(CreateAPIView):
     serializer_class = VoteSerializer
-    #permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser]
 
     def perform_create(self, serializer):
         user = self.request.user
@@ -48,17 +48,14 @@ class VoteCreateAPIView(CreateAPIView):
 class ItemListAPIView(ListAPIView):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
-    permission_classes = [AllowAny]
 
 
 class ItemRetrieveAPIView(RetrieveAPIView):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
-    permission_classes = [AllowAny]
 
 
 class CartItemUpdateOrCreateAPIView(APIView):
-    permission_classes = [AllowAny]
     serializer_class = CartItemUpdateOrCreateSerializer
 
     def post(self, request, *args, **kwargs):
@@ -190,8 +187,6 @@ class OrderItemAPIView(APIView):
 
 
 class CurrentVoteAPIView(APIView):
-    permission_classes = [AllowAny]
-
     def get(self, request, *args, **kwargs):
         latest_vote = Vote.objects.last()
 
@@ -203,7 +198,7 @@ class CurrentVoteAPIView(APIView):
 
 
 class OrderItemGenericAPIView(GenericAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser]
     queryset = OrderItem.objects.all()
     serializer_class = OrderItemCountSerializer
     filter_backends = (filters.DjangoFilterBackend,)
@@ -227,10 +222,17 @@ class OrderItemGenericAPIView(GenericAPIView):
 class VoteListAPIView(ListAPIView):
     queryset = Vote.objects.all()
     serializer_class = VoteSerializer
-    permission_classes = [AllowAny]
 
 
 class UserListAPIView(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]
+
+
+class MyUserGenericAPIView(GenericAPIView):
+    serializer_class = UserSerializer
+
+    def get(self, request, *args, **kwargs):
+        instance = request.user
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)

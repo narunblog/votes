@@ -31,6 +31,19 @@ import Test from "../test/TestSelectGrandParent";
 
 Vue.use(VueRouter);
 
+
+const menuGuard = (to, from, next) => {
+  if (store.state.isStaff) {
+    next();
+  } else {
+    if (from.path == "/login") {
+      next({ path: '/', })
+    } else {
+      next(false);
+    }
+  }
+};
+
 const routes = [
   {
     path: "/",
@@ -42,19 +55,19 @@ const routes = [
         path: "vote",
         name: "vote",
         component: Vote,
-        //meta: { requiresAuth: true },
+        meta: { requiresAuth: true },
       },
       {
         path: "vote/new-vote",
         name: "newVote",
         component: NewVote,
-        //meta: { requiresAuth: true },
+        meta: { requiresAuth: true },
       },
       {
         path: "vote/re-vote",
         name: "reVote",
         component: ReVote,
-        //meta: { requiresAuth: true },
+        meta: { requiresAuth: true },
       },
       {
         path: "vote-history",
@@ -66,13 +79,15 @@ const routes = [
         path: "vote-result",
         name: "voteResult",
         component: VoteResult,
-        meta: { requiresAuth: true },
+        meta: { requiresAuth: true, isStaff: true },
+        beforeEnter: menuGuard,
       },
       {
         path: "vote-start",
         name: "voteStart",
         component: VoteStart,
-        meta: { requiresAuth: true },
+        meta: { requiresAuth: true, isStaff: true },
+        beforeEnter: menuGuard,
       },
     ],
   },
@@ -158,6 +173,18 @@ router.beforeEach((to, from, next) => {
   } else {
     next() // next() を常に呼び出すようにしてください!
   }
+});
+
+router.beforeEach(async (to, from, next) => {
+  if (to.matched.some(record => record.meta.isStaff)) {
+    // このルートは管理者かどうか認証が必要です。
+    // ストアになければ更新します。
+    if (!store.state.isStaff) {
+      await store.dispatch('isStaff');
+    }
+    next()
+  }
+  next()
 });
 
 

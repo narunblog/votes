@@ -28,7 +28,7 @@
 
     <v-navigation-drawer app v-model="drawer" clipped>
         <v-list dense nav>
-          <v-list-item v-for="nav_list in nav_lists" :key="nav_list.name" :to="nav_list.link">
+          <v-list-item v-for="nav_list in availableMenus" :key="nav_list.name" :to="nav_list.link">
             <v-list-item-icon>
               <v-icon>{{ nav_list.icon }}</v-icon>
             </v-list-item-icon>
@@ -65,21 +65,25 @@ export default {
     name: '投票',
     icon: 'mdi-vote',
     link: '/vote',
+    isStaff:false,
   },
   {
     name: '投票履歴を見る',
     icon: 'mdi-history',
     link: '/vote-history',
+    isStaff:false,
   },
   {
     name: '投票総数を見る',
     icon: 'mdi-file-table-box-multiple-outline',
     link: '/vote-result',
+    isStaff:true,
   },
   {
     name: '投票を開始する',
     icon: 'mdi-calendar-start',
     link: '/vote-start',
+    isStaff:true,
   },
 ],
     drawer: null,
@@ -91,5 +95,25 @@ export default {
       {name: '将来的に',icon: 'mdi-stack-overflow'},
     ],
   }),
+  computed: {
+    availableMenus() {
+      let available = [];
+      for (const menu of this.nav_lists) {
+        if (!menu.isStaff) {
+          available.push(menu);
+        } else {
+          if (this.isAvailable()) {
+            available.push(menu);
+          }
+        }
+      }
+      return available;
+    }
+  },
+  methods: {
+    isAvailable() {
+      return this.$store.state.isStaff
+    },
+  },
 };
 </script>

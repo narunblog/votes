@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (VoteCreateAPIView, ItemListAPIView, ItemRetrieveAPIView, CartItemUpdateOrCreateAPIView,
                     CartItemListAPIView, OrderRetrieveUpdateAPIView, OrderHistoryListAPIView, CurrentVoteOrderAPIView,
-                    CurrentVoteAPIView, OrderItemAPIView, OrderItemGenericAPIView, VoteListAPIView, UserListAPIView)
+                    CurrentVoteAPIView, OrderItemAPIView, OrderItemGenericAPIView, VoteListAPIView, UserListAPIView, MyUserGenericAPIView)
 
 urlpatterns = [
     path('create/', VoteCreateAPIView.as_view()),
@@ -16,5 +16,6 @@ urlpatterns = [
     path('order/', OrderItemAPIView.as_view()),
     path('vote/current/', CurrentVoteAPIView.as_view()),
     path('vote/', VoteListAPIView.as_view()),
+    path('user/my/', MyUserGenericAPIView.as_view()),
     path('user/', UserListAPIView.as_view()),
 ]
