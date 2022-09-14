@@ -1,5 +1,5 @@
 <template>
   <v-container>
-    <h1>Password_change</h1>
+    <h1>パスワードを変更してください。</h1>
   </v-container>
 </template>

@@ -123,15 +123,15 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 
 
 # ローカル確認用
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # 本番環境用
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'xxx@gmail.com'
-EMAIL_HOST_PASSWORD = 'xxx'
+EMAIL_HOST_USER = 'vote.app.system@gmail.com'
+EMAIL_HOST_PASSWORD = 'xsdcrxtcnfnaifkd'
 EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = 'xxx@gmail.com'
+DEFAULT_FROM_EMAIL = 'vote.app.system@gmail.com'
 
 
 # rest_framework
@@ -156,8 +156,10 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=100)
 
 }
+# django-templated-mail
+DOMAIN = '0.0.0.0:8080/#'
 
-DOMAIN = 'http://0.0.0.0:8080/#/'
+
 # djoser
 DJOSER = {
     # メールアドレスでログイン
@@ -187,6 +189,21 @@ DJOSER = {
     # カスタムユーザー用シリアライザー
     'SERIALIZERS': {
         'user_create_password_retype': 'apps.accounts.serializers.MyUserCreatePasswordRetypeSerializer',
+    },
+    # メール内容変更
+    'EMAIL': {
+        # アカウント本登録
+        'activation': 'apps.accounts.email.ActivationEmail',
+        # アカウント本登録完了
+        'confirmation': 'apps.accounts.email.ConfirmationEmail',
+        # パスワードリセット
+        'password_reset': 'apps.accounts.email.PasswordResetEmail',
+        # パスワードリセット完了
+        'password_changed_confirmation': 'apps.accounts.email.PasswordChangedConfirmationEmail',
+        # メールアドレスリセット
+        'username_reset': 'apps.accounts.email.UsernameResetEmail',
+        # メールアドレスリセット完了
+        'username_changed_confirmation': 'apps.accounts.email.UsernameChangedConfirmationEmail',
     },
 }
 

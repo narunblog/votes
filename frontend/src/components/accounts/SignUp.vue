@@ -20,6 +20,7 @@
                 dense
                 label="性"
                 v-model="inputFirstName"
+                :disabled="processing"
                 :error-messages="errorMessagesFirstName">
               </v-text-field>
             </v-col>
@@ -31,6 +32,7 @@
                 dense
                 label="名"
                 v-model="inputLastName"
+                :disabled="processing"
                 :error-messages="errorMessagesLastName">
               </v-text-field>
             </v-col>
@@ -41,6 +43,7 @@
                 dense
                 label="社員番号"
                 v-model="inputUserNumber"
+                :disabled="processing"
                 :error-messages="errorMessagesUserNumber">
               </v-text-field>
             </v-col>
@@ -51,6 +54,7 @@
                 dense
                 label="メールアドレス"
                 v-model="inputEmail"
+                :disabled="processing"
                 :error-messages="errorMessagesEmail">
               </v-text-field>
             </v-col>
@@ -63,6 +67,7 @@
                 v-model="inputPassword"
                 :type="show1 ? 'text' : 'password'"
                 :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                :disabled="processing"
                 :error-messages="errorMessagesPassword">
                 <template v-slot:append>
                   <button @click="show1 = !show1" tabindex="-1">
@@ -81,7 +86,7 @@
                 v-model="inputRePassword"
                 :type="show2 ? 'text' : 'password'"
                 :append-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'"
-                @click:append="show2 = !show2"
+                :disabled="processing"
                 :error-messages="errorMessagesRePassword">
                 <template v-slot:append>
                   <button @click="show2 = !show2" tabindex="-1">
@@ -93,12 +98,12 @@
             </v-col>
             <v-col
               cols="12">
-              <v-btn color="primary" block @click="submit">アカウントを作成する</v-btn>
+              <v-btn color="primary" block @click="submit" :loading="processing">アカウントを作成する</v-btn>
             </v-col>
             <v-col
               cols="12">
               <v-divider class="mt-8"></v-divider>
-              <v-btn class="mt-8" color="primary" block to="/login">ログインする</v-btn>
+              <v-btn class="mt-8" color="primary" block to="/login" :disabled="processing">ログインする</v-btn>
             </v-col>
           </v-row>
         </v-container>
@@ -129,7 +134,8 @@ export default {
       errorMessagesPassword: [],
       errorMessagesRePassword: [],
       show1: false,
-      show2:false,
+      show2: false,
+      processing:false,
     };
   },
   validations: {
@@ -215,6 +221,7 @@ export default {
       }
     },
     signup() {
+      this.processing = true
       axiosBase.post("/api/accounts/users/", {
         first_name: this.inputFirstName,
         last_name: this.inputLastName,
@@ -226,7 +233,7 @@ export default {
         this.$router.push({ name: "signUpDone" });
         })
         .catch(error => {
-          console.log(error.response)
+          console.log(error)
           const data = error.response.data
           if (data.email) {
             this.errorMessagesEmail.splice(0)
@@ -252,6 +259,8 @@ export default {
             this.errorMessagesRePassword.splice(0)
             this.errorMessagesRePassword.push(data.re_password)
           }
+        }).finally(() => {
+          this.processing = false
         })
     },
   },

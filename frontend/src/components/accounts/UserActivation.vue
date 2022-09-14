@@ -1,42 +1,47 @@
 <template>
   <v-container>
-    <h1>UserActivation</h1>
+    <div v-if="!processing">
+      <div v-if="isActivate">
+        <h1>アクティベーションに成功しました。</h1>
+        <p>ログイン画面に移動して、ログインを行なってください。</p>
+        <router-link to="/login">ログイン画面へ</router-link>
+      </div>
+      <div v-else>
+        <h1>アクティベーションに失敗しました。時間を置いて再度アクセスしてください。</h1>
+      </div>
+    </div>
   </v-container>
 </template>
 
 
 <script>
-import axios from "axios";
+import { axiosBase } from '@/mixins/AxiosBase';
 
 
 export default {
   data() {
-    return {};
+    return {
+      isActivate: false,
+      processing:true,
+    };
   },
   methods: {
     activate() {
-      const axiosBase = axios.create({
-        baseURL: "http://127.0.0.1:8000",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        responseType: "json",
-        timeout: 1000,
-      });
-      axiosBase.post("/api/accounts/users/activation/", {
+      return axiosBase.post("/api/accounts/users/activation/", {
         uid: this.$route.params.uid,
         token: this.$route.params.token,
       }).then(response => {
-        console.log(response)
-        console.log('アクティベーションに成功しました。')
+        this.isActivate = true
         })
-        .catch(response => {
-          console.log(response)
-          console.log('アクティベーションに失敗しました。時間を置いて再度アクセスしてください。')
+        .catch(error => {
+          console.log(error)
+        })
+        .finally(() => {
+          this.processing = false
         })
     },
   },
-  created: function () {
+  created() {
     this.activate()
   },
 };
