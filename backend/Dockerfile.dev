@@ -2,11 +2,9 @@ FROM python:3.9.7-alpine
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-
-ENV HOME=/home/app
 ENV APP_HOME=/home/app/web
-ENV STATS_FILE=/home/app/frontend
-RUN mkdir -p $APP_HOME && mkdir -p $STATS_FILE
+
+RUN mkdir -p $APP_HOME
 WORKDIR $APP_HOME
 
 RUN apk update && \
@@ -16,13 +14,14 @@ RUN apk update && \
 	libxcb-dev libpng-dev alpine-sdk build-base openssl-dev tzdata py3-tz
 
 RUN pip install --upgrade pip
+
 COPY ./requirements.dev.txt .
 RUN pip install -r requirements.dev.txt
 
-COPY . .
-
 COPY startup.sh /startup.sh
 RUN chmod 744 /startup.sh
+
+COPY . .
 
 EXPOSE 8000
 
