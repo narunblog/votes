@@ -1,13 +1,15 @@
-FROM node:14-alpine
-
-# カレントワーキングディレクトリとして 'app' フォルダを指定する
+# build stage
+FROM node:lts-alpine as build-stage
 WORKDIR /app
-
-# `package.json` と `package-lock.json` （あれば）を両方コピーする
 COPY package*.json ./
-
-# プロジェクトの依存ライブラリをインストールする
 RUN npm install
-
-# カレントワーキングディレクトリ(つまり 'app' フォルダ)にプロジェクトのファイルやフォルダをコピーする
 COPY . .
+
+ENV NODE_ENV=production
+#RUN npm run build
+
+# production stage
+FROM nginx:stable-alpine as production-stage
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

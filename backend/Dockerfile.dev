@@ -25,4 +25,6 @@ COPY . .
 
 EXPOSE 8000
 
+ENTRYPOINT ["/home/app/web/entrypoint.sh"]
+
 CMD ["/startup.sh"]

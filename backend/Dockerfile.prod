@@ -11,18 +11,17 @@ WORKDIR $APP_HOME
 
 
 # install psycopg2 dependencies
-RUN apk update \
-    && apk add postgresql-dev gcc python3-dev musl-dev
+RUN apk update && \
+    apk add gcc python3-dev jpeg-dev zlib-dev musl-dev libjpeg py3-setuptools \
+    tiff-dev openjpeg-dev freetype-dev lcms2-dev \
+    libwebp-dev tcl-dev tk-dev harfbuzz-dev fribidi-dev libimagequant-dev \
+    libxcb-dev libpng-dev alpine-sdk build-base openssl-dev tzdata py3-tz
 
 RUN pip install --upgrade pip
 
 COPY ./requirements.prod.txt .
 RUN pip install -r requirements.prod.txt
 
-COPY startup.sh /startup.sh
-RUN chmod 744 /startup.sh
-
 COPY . .
 
-CMD ["/startup.sh"]
-
+ENTRYPOINT ["/home/app/web/entrypoint.sh"]
