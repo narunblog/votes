@@ -61,7 +61,7 @@ services:
       - redis
     restart: on-failure
     env_file:
-      - ./backend/.env.dev
+      - ./backend/.env.prod
 
   celery_beat:
     build:
@@ -72,7 +72,7 @@ services:
       - celery
     restart: on-failure
     env_file:
-      - ./backend/.env.dev
+      - ./backend/.env.prod
 
   flower:
     build:
@@ -84,7 +84,7 @@ services:
     depends_on:
       - celery
     env_file:
-      - ./backend/.env.dev
+      - ./backend/.env.prod
 
 volumes:
   postgres_data:
