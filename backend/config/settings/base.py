@@ -123,16 +123,18 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
 
-# ローカル確認用
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# 本番環境用
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
-EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL")
+if os.environ.get("DJANGO_SETTINGS_MODULE") == 'config.settings.dev':
+    # ローカル確認用
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+elif os.environ.get("DJANGO_SETTINGS_MODULE") == 'config.settings.prod':
+    # 本番環境用
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_PORT = 587
+    EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+    EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+    EMAIL_USE_TLS = True
+    DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL")
 
 
 # rest_framework
@@ -158,7 +160,7 @@ SIMPLE_JWT = {
 
 }
 # django-templated-mail
-DOMAIN = '0.0.0.0:8080/#'
+DOMAIN = os.environ.get("DOMAIN")
 
 
 # djoser
