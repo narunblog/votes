@@ -93,7 +93,7 @@ services:
       - 443:443
     restart: always
     environment:
-      DOMAINS: '${DOMAIN} -> http://frontend:8080'
+      DOMAINS: '${DOMAIN} -> http://frontend:80'
       STAGE: ${STAGE}
     volumes:
       - org-chimata-ssl-certs:/var/lib/https-portal
