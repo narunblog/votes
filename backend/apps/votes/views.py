@@ -166,12 +166,16 @@ class OrderHistoryListAPIView(ListAPIView):
 class CurrentVoteOrderAPIView(APIView):
     def get(self, request, *args, **kwargs):
         user = request.user
-        vote = Vote.objects.last().id
-        current_order = Order.objects.filter(user=user, vote=vote)
-        if current_order:
-            return Response('true', status.HTTP_200_OK)
+        vote = Vote.objects.last()
+        if vote is not None:
+            vote_id = vote.id
+            current_order = Order.objects.filter(user=user, vote=vote_id)
+            if current_order:
+                return Response('true', status.HTTP_200_OK)
+            else:
+                return Response('false', status.HTTP_200_OK)
         else:
-            return Response('false', status.HTTP_200_OK)
+                return Response('false', status.HTTP_200_OK)
 
 
 class OrderItemAPIView(APIView):

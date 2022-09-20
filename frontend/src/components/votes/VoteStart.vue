@@ -39,7 +39,7 @@
       </v-sheet>
       <Timer  :deadline="formatDateComputed(new Date(vote.end_datetime),'yyyy-MM-dd HH\:mm\:ss:')"></Timer>
     </div>
-    <div v-else-if="vote.status==2">
+    <div v-else>
       <v-sheet
         color="grey lighten-4">
           <div

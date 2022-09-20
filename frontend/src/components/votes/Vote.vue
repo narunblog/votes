@@ -32,7 +32,7 @@
         <v-btn v-else color="primary" to="/vote/re-vote">選び直す</v-btn>
       </div>
     </div>
-    <div v-else-if="vote.status==2">
+    <div v-else>
       <v-sheet
         color="grey lighten-4">
           <div
