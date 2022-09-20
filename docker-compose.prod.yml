@@ -86,10 +86,23 @@ services:
     env_file:
       - ./backend/.env.prod
 
+  https-portal:
+    image: steveltn/https-portal:1
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+    environment:
+      DOMAINS: '${DOMAIN} -> http://frontend:8080'
+      STAGE: ${STAGE}
+    volumes:
+      - org-chimata-ssl-certs:/var/lib/https-portal
+
 volumes:
   postgres_data:
   redis_data:
   static_volume:
   media_volume:
+  org-chimata-ssl-certs:
 
 
